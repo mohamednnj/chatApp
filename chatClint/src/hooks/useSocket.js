@@ -3,7 +3,10 @@ import {useEffect, useState} from "react";
 import {io} from "socket.io-client";
 
 const socket = io("/", {
-    transports: ["websocket", "polling"]
+    transports: ["websocket", "polling"],
+    query: {
+        chatId: new URL(window.location.href).searchParams.get('chatId'),
+    }
 });
 
 function formatTime(date) {
