@@ -1,9 +1,11 @@
 import 'flowbite';
 import createChat from "../service/createChat.js";
-import {useState} from "react";
+import React, {useState} from "react";
+import FormLogin from "./FormLogin.jsx";
 
 export default function Sidebar() {
     let [chats, setChat] = useState(['']);
+    const [showLoginForm, setShowLoginForm] = useState(false);
     let chatsList = chats.map((chat) => {
         return (
             <li key={!chat ? '' : chat}>
@@ -14,6 +16,7 @@ export default function Sidebar() {
     })
     return (
         <>
+            {showLoginForm && (<FormLogin  setShowLoginForm={setShowLoginForm}/>)}
             {/* Mobile menu button */}
             <button
                 data-drawer-target="separator-sidebar"
@@ -151,7 +154,11 @@ export default function Sidebar() {
                                           strokeWidth="2"
                                           d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"/>
                                 </svg>
-                                <span className="flex-1 ms-3 whitespace-nowrap">Sign In</span>
+                                <span onClick={(e) => {
+                                    e.preventDefault();
+                                    setShowLoginForm(!showLoginForm);
+                                    console.log("showLoginForm: ",showLoginForm)
+                                }} className="flex-1 ms-3 whitespace-nowrap">Sign In</span>
                             </a>
                         </li>
                         <li>

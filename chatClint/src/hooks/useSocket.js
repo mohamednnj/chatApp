@@ -9,6 +9,10 @@ const socket = io("/", {
     }
 });
 
+export function login(email ) {
+    socket.emit("login", email)
+}
+
 function formatTime(date) {
     return date.getHours().toString().padStart(2, "0") + ":" +
         date.getMinutes().toString().padStart(2, "0");

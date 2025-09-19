@@ -1,46 +1,12 @@
-import express from 'express';
-import {createServer} from 'node:http';
-import {Server} from "socket.io";
+import {io, server} from './utiles/socket.io.js';
+import emitMessage from './utiles/emitMessage.js';
+import storeSockets from "./utiles/storeSockets.js";
+import {sendEmail} from "./utiles/emailService.js";
 
-/**
- * Emits a message to a list of sockets.
- *
- * @param {Array} l - List of sockets to emit the message to
- * @param {Object} s - The sender socket (who is sending the message)
- * @param {string} m - Message want send
- *
- */
-const emitMessage = (l, s, m) => {
-    l.forEach(e => {
-        if (e.id !== s.id) {
-            e.emit("receiveMessage", m)
-        }
-    })
-}
-const app = express();
-const server = createServer(app);
 
-const io = new Server(server, {
-    cors: {
-        origin: ["http://localhost:3000", "http://10.112.225.44:5173"], // React app
-        methods: ["GET", "POST"],
-    },
-});
-let publicChat = []
-let groupsOfChat = {}
-
+const addSocket = storeSockets();
 io.on("connection", (socket) => {
-    const chatId = socket.handshake.query?.chatId;
-    if (chatId) {
-        if (!groupsOfChat[chatId]) {
-            groupsOfChat[chatId] = [socket];
-        } else {
-            groupsOfChat[chatId].push(socket);
-        }
-    } else {
-        publicChat.push(socket);
-    }
-    console.log("⚡ User connected:", socket.id);
+    const {chatId, publicChat, groupsOfChat} = addSocket(socket)
 
     socket.on("sendMessage", (message) => {
         console.log("📩 Message:", message);
@@ -50,6 +16,11 @@ io.on("connection", (socket) => {
             emitMessage(publicChat, socket, message)
         }
     });
+
+    socket.on("login", async (email) => {
+        console.log("email:", email)
+        await sendEmail(email)
+    })
 
     socket.on("disconnect", () => {
         console.log("❌ User disconnected:", socket.id);
